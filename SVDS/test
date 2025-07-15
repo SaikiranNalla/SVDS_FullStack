@@ -1,0 +1,212 @@
+# orders/models.py
+from django.db import models
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+    ]
+
+    date = models.DateField()
+    from_address = models.CharField(max_length=255)
+    to_address = models.CharField(max_length=255)
+    consignor = models.CharField(max_length=100)
+    consignee = models.CharField(max_length=100)
+    vehicle_number = models.CharField(max_length=50)
+    vehicle_charge = models.IntegerField()
+
+    # consignment details
+    value = models.IntegerField()
+    packages = models.IntegerField()
+    description = models.TextField(blank=True)
+    eway_bill = models.CharField(max_length=100)
+    consignment_invoice = models.CharField(max_length=100)
+    actual_weight = models.IntegerField()
+    charged_weight = models.IntegerField()
+    freight_charges = models.IntegerField(default=0)
+
+    # bill specific
+    invoice_number = models.CharField(max_length=50, blank=True)
+    other_charges = models.IntegerField(default=0)
+    total_charge = models.IntegerField(default=0)
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+
+    def __str__(self):
+        return f"Order {self.id} - {self.status.title()}"
+
+# orders/forms.py
+from django import forms
+from .models import Order
+
+class OrderForm(forms.ModelForm):
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
+    class Meta:
+        model = Order
+        fields = [
+            'date', 'from_address', 'to_address', 'consignor', 'consignee',
+            'vehicle_number', 'vehicle_charge', 'value', 'packages', 'description',
+            'eway_bill', 'consignment_invoice', 'actual_weight', 'charged_weight',
+            'freight_charges'
+        ]
+        widgets = {field: forms.TextInput(attrs={'class': 'form-control'})
+                   for field in fields if field != 'date'}
+        widgets['description'] = forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+
+# orders/views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from .forms import OrderForm
+from .models import Order
+# PDF generation import placeholder (e.g. WeasyPrint)
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('orders:dashboard')
+    msg = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('orders:dashboard')
+        else:
+            msg = 'Invalid credentials'
+    return render(request, 'login.html', {'error': msg})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('orders:login')
+
+@login_required
+def dashboard(request):
+    pending = Order.objects.filter(status='pending')
+    completed = Order.objects.filter(status='completed')
+    return render(request, 'orders/admin_dashboard.html', {
+        'pending': pending, 'completed': completed
+    })
+
+@login_required
+def add_order(request):
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('orders:dashboard')
+    else:
+        form = OrderForm()
+    return render(request, 'orders/order_form.html', {'form': form})
+
+@login_required
+def complete_order(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    if request.method == 'POST':
+        order.other_charges = int(request.POST.get('other_charges', 0))
+        order.freight_charges = int(request.POST.get('freight_charges', 0))
+        order.total_charge = order.vehicle_charge + order.freight_charges + order.other_charges
+        order.status = 'completed'
+        # generate PDF here and set invoice_number
+        order.invoice_number = f"INV{order.id:05d}"
+        order.save()
+        return redirect('orders:dashboard')
+    return render(request, 'orders/complete_order.html', {'order': order})
+
+@login_required
+def download_invoice(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    # render PDF response
+    # pdf = render_to_pdf('orders/invoice_template.html', {'order': order})
+    # return HttpResponse(pdf, content_type='application/pdf')
+    pass
+
+# orders/urls.py
+from django.urls import path
+from . import views
+
+app_name = 'orders'
+urlpatterns = [
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('admin/dashboard/', views.dashboard, name='dashboard'),
+    path('admin/add/', views.add_order, name='add_order'),
+    path('admin/complete/<int:pk>/', views.complete_order, name='complete_order'),
+    path('admin/download/<int:pk>/', views.download_invoice, name='download_invoice'),
+]
+
+# templates/login.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login - SVDS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container vh-100 d-flex justify-content-center align-items-center">
+  <div class="card p-4 shadow-sm" style="width: 100%; max-width: 380px;">
+    <h3 class="text-center mb-3">Admin Login</h3>
+    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+      </div>
+      <button type="submit" class="btn btn-warning w-100">Login</button>
+    </form>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+# templates/orders/admin_dashboard.html
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Orders Dashboard</h2>
+    <a href="{% url 'orders:add_order' %}" class="btn btn-warning">+ Add Order</a>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h4>Pending</h4>
+      <ul class="list-group">
+        {% for order in pending %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            #{{ order.id }} — {{ order.from_address }} → {{ order.to_address }}
+            <div>
+              <a href="{% url 'orders:complete_order' order.id %}" class="btn btn-sm btn-primary me-2">Complete</a>
+              <a href="{% url 'orders:download_invoice' order.id %}" class="btn btn-sm btn-outline-secondary">Download</a>
+            </div>
+          </li>
+        {% empty %}
+          <li class="list-group-item">No pending orders.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-md-6">
+      <h4>Completed</h4>
+      <ul class="list-group">
+        {% for order in completed %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            #{{ order.id }} — {{ order.from_address }} → {{ order.to_address }}
+            <a href="{% url 'orders:download_invoice' order.id %}" class="btn btn-sm btn-outline-secondary">Download</a>
+          </li>
+        {% empty %}
+          <li class="list-group-item">No completed orders.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

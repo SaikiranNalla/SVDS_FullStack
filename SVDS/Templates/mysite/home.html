@@ -1,0 +1,78 @@
+{% extends 'mysite/base.html' %}
+{% load static %}
+{% block content %}
+<!-- Hero Section -->
+<header id="home" class="text-white py-5" style="background: url('{% static 'SVDS/media/card_bac.png' %}') center/cover; background-color: #182933">
+    <!-- Overlay -->
+  <div class="position-relative top-0 start-0 w-100 h-100" style="background-color: rgba(0, 0, 0, 0.5); z-index: 0;"></div>
+  <div class="container text-center position-relative" style="z-index: 1;">
+    <h1 class="display-5">Your Trusted SVDS Transportation Partner</h1>
+    <p class="lead mb-4">Delivering Excellence Since 1995</p>
+    <a href="#quote" class="btn btn-warning btn-lg">Get a Quote</a>
+  </div>
+</header>
+
+<!--<header id="home" class="position-relative text-white py-5" style="background: url('{% static 'SVDS/media/card.png' %}') center/cover;">-->
+
+<!--  &lt;!&ndash; Overlay &ndash;&gt;-->
+<!--  <div class="position-absolute top-0 start-0 w-100 h-100" style="background-color: rgba(0, 0, 0, 0.5); z-index: 0;"></div>-->
+
+<!--  <div class="container text-center position-relative" style="z-index: 1;">-->
+<!--    <h1 class="display-5">Your Trusted Transportation Partner</h1>-->
+<!--    <p class="lead mb-4">Delivering Excellence Since 1995</p>-->
+<!--    <a href="#quote" class="btn btn-warning btn-lg">Get a Quote</a>-->
+<!--  </div>-->
+<!--</header>-->
+
+
+<!-- About + Stats -->
+<section id="about" class="py-5">
+  <div class="container">
+    <div class="text-center mb-4">
+      <h2>About SVDS</h2>
+      <p class="text-muted">We provide reliable and efficient transportation services across the nation. Trusted by businesses and individuals alike.</p>
+    </div>
+
+    <div class="row text-center">
+      <div class="col-md-4 mb-4">
+<!--        Need to change to the Truck or Transportation icon-->
+        <i class="bi bi-clock-history fs-1 text-warning"></i>
+        <h2 class="mt-2">15+</h2>
+        <p>Years Experience</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <i class="bi bi-people-fill fs-1 text-warning"></i>
+        <h2 class="mt-2">1000+</h2>
+        <p>Happy Clients</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <i class="bi bi-globe2 fs-1 text-warning"></i>
+        <h2 class="mt-2">Nationwide</h2>
+        <p>Coverage 24/7</p>
+      </div>
+    </div>
+
+    <hr class="my-5">
+    <div class="text-center mb-3">
+      <h2>Our Services</h2>
+    </div>
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+          <i class="bi bi-truck fs-1 text-warning"></i>
+            <h3 class="mt-2">Truck</h3>
+            <p>Fast & Reliable</p>
+        </div>
+        <div class="col-md-4 mb-4">
+          <i class="bi bi-truck fs-1 text-warning me-2"></i>
+            <h3 class="mt-2">Trailer</h3>
+            <p>Fast & Reliable</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <i class="bi bi-truck fs-1 text-warning me-2"></i>
+            <h3 class="mt-2">Minivan Logistics</h3>
+            <p>Fast & Reliable</p>
+        </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
