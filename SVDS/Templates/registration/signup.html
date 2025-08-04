@@ -1,0 +1,42 @@
+{% extends 'mysite/base.html' %}
+{% block content %}
+{% load crispy_forms_tags %}
+<section class="min-vh-100 d-flex align-items-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5 col-lg-4">
+        <div class="card border-0 shadow-lg">
+          <div class="card-header text-center" style="background-color: #182933;">
+            <h4 class="text-white">SVDS Admin Signup</h4>
+          </div>
+          <div class="card-body p-4">
+            <form method="post">
+              {% csrf_token %}{{form|crispy}}
+              <p>Have an account? <a href="/login">Login</a> </p>
+
+<!--              {{ form.non_field_errors }}-->
+
+<!--              <div class="mb-3">-->
+<!--                {{ form.username.label_tag }}   {# <label for="id_username">Username</label> #}-->
+<!--                {{ form.username }}             {# <input class="form-control" …> #}-->
+<!--                {{ form.username.errors }}-->
+<!--              </div>-->
+
+<!--              <div class="mb-3">-->
+<!--                {{ form.password.label_tag }}-->
+<!--                {{ form.password }}-->
+<!--                {{ form.password.errors }}-->
+<!--              </div>-->
+              <button type="submit" class="btn btn-warning w-100 py-2">Register</button>
+            </form>
+          </div>
+<!--          <div class="card-footer text-center text-muted small">-->
+<!--            © {% now "Y" %} SVDS-->
+<!--          </div>-->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

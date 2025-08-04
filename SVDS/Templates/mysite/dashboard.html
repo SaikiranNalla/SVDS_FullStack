@@ -1,0 +1,100 @@
+{% extends 'mysite/base.html' %}
+{% block content %}
+
+<!--# Alert message of successfull add transit!-->
+{% if messages %}
+  <div class="container mt-3">
+    {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-1">Transit Dashboard</h2>
+    <a href="{% url 'mysite:addtransit' %}" class="btn btn-warning">+ Add Transit</a>
+  </div>
+
+  <!-- 1) Status Pills -->
+  <ul class="nav nav-pills mb-4 justify-content-center" role="tablist" id="orderTabs">
+    {% for tab in tabs %}
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link text-dark {% if forloop.first %}active{% endif %}"
+          id="{{ tab.key }}-tab"
+          data-bs-toggle="pill"
+          data-bs-target="#{{ tab.key }}"
+          type="button"
+          role="tab"
+          aria-controls="{{ tab.key }}"
+          aria-selected="{{ forloop.first|yesno:'true,false' }}">
+          {{ tab.label }}
+        </button>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <!-- Gold highlight script -->
+  <script>
+    document.querySelectorAll('#orderTabs button').forEach(btn => {
+      btn.addEventListener('shown.bs.tab', () => btn.classList.add('bg-warning'));
+      btn.addEventListener('hidden.bs.tab', () => btn.classList.remove('bg-warning'));
+    });
+  </script>
+
+  <!-- 2) Tab Panes -->
+  <div class="tab-content">
+    {% for tab in tabs %}
+      <div
+        class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+        id="{{ tab.key }}"
+        role="tabpanel"
+        aria-labelledby="{{ tab.key }}-tab">
+
+        {% if tab.orders %}
+          <ul class="list-group">
+              {% for order in tab.orders %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <!-- show bill_no instead of numeric id -->
+                    <strong>{{ order.svds_bill_no }}</strong>
+                    &nbsp;– {{ order.transit_from }} → {{ order.transit_to }} |
+
+                    <!-- show consignor & consignee -->
+                    <small class="text-muted">
+                      Consignor: {{ order.consignor }} →
+                      Consignee: {{ order.consignee }}
+                    </small>
+                  </div>
+                  <div>
+                    {% if tab.key == 'pending' or tab.key == 'unpaid' %}
+                      <a href="{% url 'mysite:edittransit' order.id %}"
+                      class="btn btn-sm btn-outline-warning me-2">
+                      Edit
+                      </a>
+                    {% endif %}
+                    <a href="{% url 'mysite:bill_pdf' order.id %}"
+                       class="btn btn-sm btn-outline-secondary">Invoice</a>
+<!--                    <a href="{# url 'mysite:download_invoice' order.id #}"-->
+<!--                       class="btn btn-sm btn-outline-secondary">Invoice</a>-->
+                  </div>
+                </li>
+              {% endfor %}
+          </ul>
+        {% else %}
+          <div class="alert alert-secondary mb-0">
+            No {{ tab.label|lower }} transits.
+          </div>
+        {% endif %}
+
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+
+
+

@@ -1,0 +1,116 @@
+{% extends 'mysite/base.html' %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4">Add Transit Details</h2>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post" action="{% url 'mysite:addtransit' %}" id="transitForm" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+                <!-- Vehicle Details -->
+        <fieldset class="mb-4">
+          <legend class="h5">Vehicle Details</legend>
+          <div class="row g-3">
+            <div class="col-md-4">
+              {{ form.date.label_tag }}{{ form.date }}
+            </div>
+            <div class="col-md-4">
+              {{ form.vehicle_number.label_tag }}{{ form.vehicle_number }}
+            </div>
+            <div class="col-md-4">
+              {{ form.vehicle_charge.label_tag }}{{ form.vehicle_charge }}
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Consignment Details -->
+        <fieldset class="mb-4">
+          <legend class="h5">Consignment Details</legend>
+          <div class="row g-3">
+            <div class="col-md-6">{{ form.transit_from.label_tag }}{{ form.transit_from }}</div>
+            <div class="col-md-6">{{ form.transit_to.label_tag }}{{ form.transit_to }}</div>
+            <div class="col-md-6">{{ form.consignor.label_tag }}{{ form.consignor }}</div>
+            <div class="col-md-6">{{ form.consignee.label_tag }}{{ form.consignee }}</div>
+            <div class="col-md-4">{{ form.consignment_value.label_tag }}{{ form.consignment_value }}{{form.consignment_value.errors}}</div>
+            <div class="col-md-4">{{ form.packages.label_tag }}{{ form.packages }}</div>
+            <div class="col-md-4">{{ form.eway_bill.label_tag }}{{ form.eway_bill }}</div>
+            <div class="col-12">{{ form.consignment_invoice.label_tag }}{{ form.consignment_invoice }}</div>
+            <div class="col-md-4">{{ form.actual_weight.label_tag }}{{ form.actual_weight }}{{form.actual_weight.errors}}</div>
+            <div class="col-md-4">{{ form.charged_weight.label_tag }}{{ form.charged_weight }}{{form.charged_weight.errors}}</div>
+            <div class="col-md-4">{{ form.freight_charges.label_tag }}{{ form.freight_charges }}{{form.freight_charges.errors}}</div>
+            <div class="col-12">{{ form.description.label_tag }}{{ form.description }}</div>
+          </div>
+        </fieldset>
+
+        <!-- Status Section (always visible) -->
+        <fieldset class="mb-4">
+          <legend class="h5">Status</legend>
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.delivery_status.label_tag }}
+              {{ form.delivery_status }}
+              {{ form.delivery_status.errors }}
+            </div>
+            <div class="col-md-6">
+              {{ form.payment_status.label_tag }}
+              {{ form.payment_status }}
+              {{ form.payment_status.errors }}
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Billing Details (hidden until delivery_status === 'completed') -->
+        <fieldset class="mb-4" id="billingBlock" style="display:none;">
+          <legend class="h5">Billing Details</legend>
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.other_charges.label_tag }}
+              {{ form.other_charges }}
+              {{ form.other_charges.errors }}
+            </div>
+            <div class="col-md-6">
+              {{ form.total_charge.label_tag }}
+              {{ form.total_charge }}
+              {{ form.other_charges.errors }}
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn-warning mt-3">Save Transit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const deliveryEl   = document.getElementById('id_delivery_status'),
+        billingBlock = document.getElementById('billingBlock'),
+        freightInput = document.getElementById('id_freight_charges'),
+        otherInput   = document.getElementById('id_other_charges'),
+        totalInput   = document.getElementById('id_total_charge');
+
+  // Show/hide billing inputs based on delivery status
+  function toggleBilling() {
+    if (deliveryEl.value === 'completed') {
+      billingBlock.style.display = 'block';
+    } else {
+      billingBlock.style.display = 'none';
+    }
+  }
+  deliveryEl.addEventListener('change', toggleBilling);
+  toggleBilling();
+
+  // Live‐calculate total_charge = freight_charges + other_charges
+  function computeTotal() {
+    const f = parseFloat(freightInput.value) || 0,
+          o = parseFloat(otherInput.value)   || 0;
+    totalInput.value = (f + o).toFixed(2);
+  }
+  freightInput.addEventListener('input', computeTotal);
+  otherInput.addEventListener('input', computeTotal);
+  computeTotal();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'mysite/base.html' %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4">Edit Transit – Bill {{ order.svds_bill_no }}</h2>
+
+  {% if messages %}
+    <div class="container mb-3">
+      {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form
+        method="post"
+        action="{% url 'mysite:edittransit' order.id %}"
+        id="transitForm"
+        novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <!-- Vehicle Details -->
+        <fieldset class="mb-4">
+          <legend class="h5">Vehicle Details</legend>
+          <div class="row g-3">
+            <div class="col-md-4">
+              {{ form.date.label_tag }}{{ form.date }}{{ form.date.errors }}
+            </div>
+            <div class="col-md-4">
+              {{ form.vehicle_number.label_tag }}{{ form.vehicle_number }}{{ form.vehicle_number.errors }}
+            </div>
+            <div class="col-md-4">
+              {{ form.vehicle_charge.label_tag }}{{ form.vehicle_charge }}{{ form.vehicle_charge.errors }}
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Consignment Details -->
+        <fieldset class="mb-4">
+          <legend class="h5">Consignment Details</legend>
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.transit_from.label_tag }}{{ form.transit_from }}{{ form.transit_from.errors }}
+            </div>
+            <div class="col-md-6">
+              {{ form.transit_to.label_tag }}{{ form.transit_to }}{{ form.transit_to.errors }}
+            </div>
+            <div class="col-md-6">
+              {{ form.consignor.label_tag }}{{ form.consignor }}{{ form.consignor.errors }}
+            </div>
+            <div class="col-md-6">
+              {{ form.consignee.label_tag }}{{ form.consignee }}{{ form.consignee.errors }}
+            </div>
+            <div class="col-md-4">
+              {{ form.consignment_value.label_tag }}{{ form.consignment_value }}{{ form.consignment_value.errors }}
+            </div>
+            <div class="col-md-4">
+              {{ form.packages.label_tag }}{{ form.packages }}{{ form.packages.errors }}
+            </div>
+            <div class="col-md-4">
+              {{ form.eway_bill.label_tag }}{{ form.eway_bill }}{{ form.eway_bill.errors }}
+            </div>
+            <div class="col-12">
+              {{ form.consignment_invoice.label_tag }}{{ form.consignment_invoice }}{{ form.consignment_invoice.errors }}
+            </div>
+            <div class="col-md-4">
+              {{ form.actual_weight.label_tag }}{{ form.actual_weight }}{{ form.actual_weight.errors }}
+            </div>
+            <div class="col-md-4">
+              {{ form.charged_weight.label_tag }}{{ form.charged_weight }}{{ form.charged_weight.errors }}
+            </div>
+            <div class="col-md-4">
+              {{ form.freight_charges.label_tag }}{{ form.freight_charges }}{{ form.freight_charges.errors }}
+            </div>
+            <div class="col-12">
+              {{ form.description.label_tag }}{{ form.description }}{{ form.description.errors }}
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Status Section (always visible) -->
+        <fieldset class="mb-4">
+          <legend class="h5">Status</legend>
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.delivery_status.label_tag }}{{ form.delivery_status }}{{ form.delivery_status.errors }}
+            </div>
+            <div class="col-md-6">
+              {{ form.payment_status.label_tag }}{{ form.payment_status }}{{ form.payment_status.errors }}
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Billing Details (hidden until completed) -->
+        <fieldset class="mb-4" id="billingBlock" style="display:none;">
+          <legend class="h5">Billing Details</legend>
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.other_charges.label_tag }}{{ form.other_charges }}{{ form.other_charges.errors }}
+            </div>
+            <div class="col-md-6">
+              {{ form.total_charge.label_tag }}{{ form.total_charge }}{{ form.total_charge.errors }}
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn-warning mt-3">Save Changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const deliveryEl   = document.getElementById('id_delivery_status'),
+        billingBlock = document.getElementById('billingBlock'),
+        freightInput = document.getElementById('id_freight_charges'),
+        otherInput   = document.getElementById('id_other_charges'),
+        totalInput   = document.getElementById('id_total_charge');
+
+  function toggleBilling() {
+    billingBlock.style.display = deliveryEl.value === 'completed' ? 'block' : 'none';
+  }
+  deliveryEl.addEventListener('change', toggleBilling);
+  toggleBilling();
+
+  function computeTotal() {
+    const f = parseFloat(freightInput.value) || 0,
+          o = parseFloat(otherInput.value)   || 0;
+    totalInput.value = (f + o).toFixed(2);
+  }
+  freightInput.addEventListener('input', computeTotal);
+  otherInput.addEventListener('input', computeTotal);
+  computeTotal();
+});
+</script>
+{% endblock %}

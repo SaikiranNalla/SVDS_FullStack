@@ -30,7 +30,7 @@
 <nav class="navbar navbar-expand-md fixed-top navbar-dark" style="background-color:#182933;">
   <div class="container">
     <!-- Logo + Name -->
-    <a class="navbar-brand d-flex align-items-center" href="#">
+    <a class="navbar-brand d-flex align-items-center" href="/">
 <!--      <video src="{% static 'SVDS/media/logo.mp4' %}" autoplay loop muted playsinline-->
 <!--             style="width:40px; height:40px; object-fit:cover; margin-right:8px; border-radius:50%;">-->
 <!--      </video>-->
@@ -46,19 +46,28 @@
 
     <div class="collapse navbar-collapse" id="mainNav">
       <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item"><a class="nav-link text-white" href="#home">Home</a></li>
-        <li class="nav-item"><a class="nav-link text-white" href="#about">About</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="/#about">About</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="#contact">Get in Touch</a></li>
-        <li class="nav-item"><a class="nav-link text-white" href="{% url 'admin' %}">Admin</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="/careers">Careers</a> </li>
+        {% if user.is_authenticated %}
+<!--          <span class="navbar-text">{{  user.username  }}</span>-->
+          <li class="nav-item"><a class="nav-link text-white" href="/svdsadmin">Dashboard</a> </li>
+          <li class="nav-item">
+            <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="nav-link text-white bg-transparent border-0">Logout</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link text-white" href="/svdsadmin">Admin</a></li>
+        {% endif %}
         <li class="nav-item">
             {% include 'dark_mode_switch/dark_mode_switch.html' %}
         </li>
       </ul>
     </div>
-
-
   </div>
-
 </nav>
 
 <div>
@@ -69,16 +78,17 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-4 text-center mb-4">
-        <i class="bi bi-telephone-fill fs-3 text-warning me-2"></i>
-        <span>+91 9296207181, +91 8897414671</span>
+        <i class="bi bi-telephone-fill fs-4 text-warning me-2"></i>
+        <a href="tel:+91 9296207181" style="color:inherit; text-decoration:none;">+91 9296207181,</a>
+        <a href="tel:+91 8897414671" style="color:inherit; text-decoration:none;">+91 8897414671</a>
       </div>
       <div class="col-md-4 text-center mb-4">
-        <i class="bi bi-envelope-fill fs-3 text-warning me-2"></i>
-        <span>svds.gtc@gmail.com</span>
+        <i class="bi bi-envelope-fill fs-4 text-warning me-2"></i>
+        <a href="mailto:svds.gtc@gmail.com" style="color:inherit; text-decoration:none;">svds.gtc@gmail.com</a>
       </div>
       <div class="col-md-4 text-center mb-4">
-        <i class="bi bi-geo-alt-fill fs-3 text-warning me-2"></i>
-        <span>26-21-8, Chaitanya nager, RK Hospital Road, Chinagantyada, Vishakapatnam, AndhraPradesh 530001</span>
+        <i class="bi bi-geo-alt-fill fs-4 text-warning me-2"></i>
+        <a href="https://maps.app.goo.gl/762YCQVf6pgrAuEw7?g_st=aw" style="color:inherit; text-decoration:none;">26-21-8, Chaitanya nagar, RK Hospital Road, Chinagantyada, Vishakapatnam, AndhraPradesh 530001</a>
       </div>
     </div>
     <div class="text-center mt-3">&copy; {{ now.year }} SVDS. All rights reserved.</div>

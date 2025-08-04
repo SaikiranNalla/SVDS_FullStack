@@ -1,25 +1,164 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import login, logout, authenticate
+from .forms import RegistrationForm, OrdersForm
+from .models import Orders
+from django.contrib import messages
 
 # Create your views here.
-
 
 def home(request):
     return render(request, 'mysite/home.html')
 
-
-from django.contrib.auth.decorators import login_required, user_passes_test
+@login_required(login_url="/login")
+@user_passes_test(lambda u: u.is_staff)
+def dashboard(request):
+    tabs = [
+        {
+          'key': 'pending',
+          'label': 'Pending',
+          'orders': Orders.objects.filter(delivery_status='pending').order_by('-date'),
+        },
+        {
+          'key': 'delivered',
+          'label': 'Delivered',
+          'orders': Orders.objects.filter(delivery_status='completed').order_by('-date'),
+        },
+        {
+          'key': 'unpaid',
+          'label': 'Unpaid',
+          'orders': Orders.objects.filter(payment_status='pending').order_by('-date'),
+        },
+        {
+          'key': 'paid',
+          'label': 'Paid',
+          'orders': Orders.objects.filter(payment_status='paid').order_by('-date'),
+        },
+    ]
+    return render(request, 'mysite/dashboard.html', {'tabs': tabs})
+# def dashboard(request):
+#     """
+#     Renders the admin dashboard with four tabs:
+#       - pending delivery
+#       - delivered
+#       - unpaid
+#       - paid
+#     """
+#     # 1) Fetch querysets for each tab
+#     pending_delivery = Orders.objects.filter(delivery_status='pending').order_by('-date')
+#     delivered       = Orders.objects.filter(delivery_status='completed').order_by('-date')
+#     unpaid          = Orders.objects.filter(payment_status='pending').order_by('-date')
+#     paid            = Orders.objects.filter(payment_status='paid').order_by('-date')
+#
+#     # 2) Package them into a dict keyed by the template’s tab IDs
+#     orders_by_status = {
+#         'pending': pending_delivery,
+#         'delivered': delivered,
+#         'unpaid': unpaid,
+#         'paid': paid,
+#     }
+#
+#     # A list of (key, label) for your nav‑pills
+#     status_tabs = [
+#         ('pending',   'Pending'),
+#         ('delivered', 'Delivered'),
+#         ('unpaid',    'Unpaid'),
+#         ('paid',      'Paid'),
+#     ]
+#     return render(request, 'mysite/dashboard.html', {
+#         'orders_by_status': orders_by_status,
+#         'status_tabs': status_tabs,
+#     })
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)
-def dashboard(request):
-    pass
+def addtransit(request):
+    if request.method == 'POST':
+        form = OrdersForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Transit order saved successfully.")
+            return redirect('mysite:dashboard')
+    else:
+        form = OrdersForm()
+    return render(request, 'mysite/addtransit.html', {'form': form})
+
+
+from django.shortcuts import get_object_or_404
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def edittransit(request, order_id):
+    order = get_object_or_404(Orders, pk=order_id)
+
+    if request.method == 'POST':
+        form = OrdersForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Transit {order.svds_bill_no} updated.")
+            return redirect('mysite:dashboard')
+    else:
+        form = OrdersForm(instance=order)
+
+    return render(request, 'mysite/edittransit.html', {
+        'form': form,
+        'order': order,
+    })
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('mysite:dashboard')
+    else:
+        form = RegistrationForm()
+    return render(request, 'registration/signup.html', {"form": form})
+
+def careers(request):
+    return render(request, 'mysite/careers.html')
+
+
+# To generate pdf
+from django.http import HttpResponse
+from .models import Orders
+from .bills import create_bill  # If your PDF function is in bills.py
+from io import BytesIO
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def create_bill_pdf(request, order_id):
+    # 1. Make sure the order exists
+    order = get_object_or_404(Orders, pk=order_id)
+
+    # 2. Create in‑memory buffer
+    buffer = BytesIO()
+
+    # 3. Generate the PDF into that buffer
+    #    We pass buffer instead of a filename—ReportLab writes into it directly.
+    # create_bill_pdf(order_id=order.pk, output_path=buffer)
+    create_bill(order_id=order.pk, output_path=buffer)  # ← Correct function
+
+    # 4. Get PDF contents & close buffer
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+
+    # 5. Build the HTTP response
+    response = HttpResponse(pdf_bytes, content_type='application/pdf')
+    #   inline = display in browser; attachment = download prompt
+    filename = f"SVDS_{order.svds_bill_no}.pdf"
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
+    return response
+
 
 
 # from django.shortcuts import render, redirect, get_object_or_404
 # from django.contrib.auth import authenticate, login, logout
 # from django.contrib.auth.decorators import login_required
 # from .forms import OrderForm
-# from .models import Order
+# from .models import Orders
 # PDF generation import placeholder (e.g. WeasyPrint)
 
 
@@ -36,7 +175,7 @@ def dashboard(request):
 #             return redirect('orders:dashboard')
 #         else:
 #             msg = 'Invalid credentials'
-#     return render(request, 'login.html', {'error': msg})
+#     return render(request, 'mysite/login.html', {'error': msg})
 #
 #
 # def logout_view(request):

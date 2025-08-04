@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-=r5(&103#74a%d1l!hi$7^0#fjbedqf#3^_=@_xc0u7e9_4d&2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['hills-database-advertisement-economics.trycloudflare.com']
+#
+# CSRF_TRUSTED_ORIGINS = ['https://hills-database-advertisement-economics.trycloudflare.com']
+#
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Application definition
@@ -38,9 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mysite',
+    'mysite.apps.MysiteConfig',
     'dark_mode_switch',
+    'crispy_forms',
+    'crispy_bootstrap5'
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,14 +65,15 @@ ROOT_URLCONF = 'SVDS.urls'
 # Review and Test it later
 # settings.py
 LOGIN_URL = 'login'           # where @login_required redirects
-LOGIN_REDIRECT_URL = 'orders:dashboard'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_REDIRECT_URL = '/admin'  # after successfull login
+LOGOUT_REDIRECT_URL = '/'  # After logout
 
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'Templates')],
+        # 'DIRS': [os.path.join(BASE_DIR, 'SVDS', 'Templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
