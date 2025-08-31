@@ -14,7 +14,9 @@ COPY . /code/
 WORKDIR /code/SVDS
 
 # Collect staticfiles
-RUN python manage.py collectstatic --noinput
+# RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput && ls -l staticfiles
+
 
 # Expose the correct port for Render
 EXPOSE 10000
