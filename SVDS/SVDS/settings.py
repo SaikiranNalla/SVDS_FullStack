@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,17 +24,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=r5(&103#74a%d1l!hi$7^0#fjbedqf#3^_=@_xc0u7e9_4d&2'
+# SECRET_KEY = 'django-insecure-=r5(&103#74a%d1l!hi$7^0#fjbedqf#3^_=@_xc0u7e9_4d&2'
+SECRET_KEY = os.getenv("SECRET_KEY")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # ALLOWED_HOSTS = ['hills-database-advertisement-economics.trycloudflare.com']
 #
 # CSRF_TRUSTED_ORIGINS = ['https://hills-database-advertisement-economics.trycloudflare.com']
+# CSRF_TRUSTED_ORIGINS['https://8000-cs-7447bc6d-bc2c-42fa-b1b5-f19207e07cdf.cs-asia-southeast1-yelo.cloudshell.dev']
+CSRF_TRUSTED_ORIGINS = [
+    'https://8000-cs-7447bc6d-bc2c-42fa-b1b5-f19207e07cdf.cs-asia-southeast1-yelo.cloudshell.dev'
+]
 #
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 # Application definition
 
@@ -58,6 +69,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'SVDS.urls'
@@ -67,6 +80,12 @@ ROOT_URLCONF = 'SVDS.urls'
 LOGIN_URL = 'login'           # where @login_required redirects
 LOGIN_REDIRECT_URL = '/admin'  # after successfull login
 LOGOUT_REDIRECT_URL = '/'  # After logout
+
+# Additional security settings (recommended by perplexity)
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+
 
 
 TEMPLATES = [
@@ -98,14 +117,47 @@ WSGI_APPLICATION = 'SVDS.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'SVDS',
-    'USER': 'postgres',
-    'PASSWORD': 'Vini@26499',
-    'HOST': '127.0.0.1',
-    'PORT': '5432',
+# DATABASES = {
+#     'default': {
+#     'ENGINE': 'django.db.backends.postgresql',
+#     'NAME': 'SVDS',
+#     'USER': 'postgres',
+#     'PASSWORD': 'Vini@26499',
+#     'HOST': '127.0.0.1',
+#     'PORT': '5432',
+#         }
+#     }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         # 'ENGINE': os.getenv('DATABASE_ENGINE'),
+#         'NAME': os.getenv('DATABASE_NAME'),
+#         'USER': os.getenv('DATABASE_USER'),
+#         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+#         'HOST': os.getenv('DATABASE_HOST'),
+#         'PORT': os.getenv('DATABASE_PORT'),
+#     }
+# }
+
+# import os
+import dj_database_url
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DATABASE_NAME'),
+            'USER': os.getenv('DATABASE_USER'),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+            'HOST': os.getenv('DATABASE_HOST'),
+            'PORT': os.getenv('DATABASE_PORT'),
         }
     }
 

@@ -1,0 +1,17 @@
+version: '3.3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    environment:
+      DATABASE_URL: postgresql://postgres.grtitzpkihcnezgfisum:Supabasevini%402604@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres
+      DJANGO_SECRET_KEY: your_dev_secrif98u3et_key_89943y2r789hiu7gh23r
+      DEBUG: 'True'
+      DJANGO_ALLOWED_HOSTS: localhost 127.0.0.1

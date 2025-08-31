@@ -1,0 +1,15 @@
+asgiref==3.9.1
+charset-normalizer==3.4.3
+crispy-bootstrap5==2025.6
+dj-database-url==3.0.1
+Django==5.2.5
+django-bootstrap5==25.2
+django-bootstrap5-dark-mode-switch==0.2.2
+django-crispy-forms==2.4
+dotenv==0.9.9
+pillow==11.3.0
+psycopg2==2.9.10
+python-dotenv==1.1.1
+reportlab==4.4.3
+sqlparse==0.5.3
+whitenoise==6.9.0
