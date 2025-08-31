@@ -36,9 +36,9 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 #
 # CSRF_TRUSTED_ORIGINS = ['https://hills-database-advertisement-economics.trycloudflare.com']
 # CSRF_TRUSTED_ORIGINS['https://8000-cs-7447bc6d-bc2c-42fa-b1b5-f19207e07cdf.cs-asia-southeast1-yelo.cloudshell.dev']
-CSRF_TRUSTED_ORIGINS = [
-    'https://8000-cs-7447bc6d-bc2c-42fa-b1b5-f19207e07cdf.cs-asia-southeast1-yelo.cloudshell.dev'
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://8000-cs-7447bc6d-bc2c-42fa-b1b5-f19207e07cdf.cs-asia-southeast1-yelo.cloudshell.dev'
+# ]
 #
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -69,7 +69,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
@@ -196,11 +195,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",  # Project-level static directory
 ]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

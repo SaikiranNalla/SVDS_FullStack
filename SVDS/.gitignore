@@ -1,0 +1,52 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Backup files
+*.bak
+
+# Collected static files
+# This is the directory where Django's `collectstatic` command
+# will place static files for production. Your source static files
+# in `mysite/static/` should NOT be ignored.
+staticfiles/
+static_root/
+
+# Python virtual environment
+venv/
+.venv/
+env/
+
+# dotenv file for environment variables
+.env
+.env.*
+
+# IDE and editor configuration files
+.idea/
+.vscode/
+*.swp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Distribution / packaging
+build/
+dist/
+eggs/
+*.egg-info/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
