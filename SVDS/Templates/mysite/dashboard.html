@@ -22,7 +22,7 @@
     {% for tab in tabs %}
       <li class="nav-item" role="presentation">
         <button
-          class="nav-link text-dark {% if forloop.first %}active{% endif %}"
+          class="nav-link text-body {% if forloop.first %}active bg-warning text-dark{% endif %}"
           id="{{ tab.key }}-tab"
           data-bs-toggle="pill"
           data-bs-target="#{{ tab.key }}"
@@ -58,29 +58,34 @@
               {% for order in tab.orders %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   <div>
-                    <!-- show bill_no instead of numeric id -->
-                    <strong>{{ order.svds_bill_no }}</strong>
-                    &nbsp;– {{ order.transit_from }} → {{ order.transit_to }} |
-
-                    <!-- show consignor & consignee -->
-                    <small class="text-muted">
-                      Consignor: {{ order.consignor }} →
-                      Consignee: {{ order.consignee }}
-                    </small>
+                    <div>
+                      <strong>{{ order.svds_bill_no }}</strong>
+                      &nbsp;– {{ order.transit_from }} → {{ order.transit_to }}
+                    </div>
+                    <div>
+                      <small class="text-body-secondary">
+                        Consignor: {{ order.consignor }} →
+                        Consignee: {{ order.consignee }}
+                      </small>
+                    </div>
                   </div>
-                  <div>
-                    {% if tab.key == 'pending' or tab.key == 'unpaid' %}
-                      <a href="{% url 'mysite:edittransit' order.id %}"
-                      class="btn btn-sm btn-outline-warning me-2">
-                      Edit
-                      </a>
-                    {% endif %}
-                    <a href="{% url 'mysite:bill_pdf' order.id %}"
-                       class="btn btn-sm btn-outline-secondary">Invoice</a>
-<!--                    <a href="{# url 'mysite:download_invoice' order.id #}"-->
-<!--                       class="btn btn-sm btn-outline-secondary">Invoice</a>-->
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Actions
+                    </button>
+                    <ul class="dropdown-menu">
+                      {% if tab.key == 'pending' or tab.key == 'unpaid' %}
+                        <li>
+                          <a class="dropdown-item" href="{% url 'mysite:edittransit' order.id %}">Edit</a>
+                        </li>
+                      {% endif %}
+                      <li>
+                        <a class="dropdown-item" href="{% url 'mysite:bill_pdf' order.id %}">Invoice</a>
+                      </li>
+                    </ul>
                   </div>
                 </li>
+                
               {% endfor %}
           </ul>
         {% else %}
@@ -102,3 +107,30 @@
 
 
 
+
+
+                <!-- <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <!-- show bill_no instead of numeric id -->
+                    <strong>{# order.svds_bill_no #}</strong>
+                    &nbsp;– {# order.transit_from #} → {# order.transit_to #} |
+
+                    <!-- show consignor & consignee -->
+                    <small class="text-muted">
+                      Consignor: {# order.consignor #} →
+                      Consignee: {# order.consignee #}
+                    </small>
+                  </div>
+                  <div>
+                    {# if tab.key == 'pending' or tab.key == 'unpaid' #}
+                      <a href="{# url 'mysite:edittransit' order.id #}"
+                      class="btn btn-sm btn-outline-warning me-2">
+                      Edit
+                      </a>
+                    {# endif #}
+                    <a href="{# url 'mysite:bill_pdf' order.id #}"
+                       class="btn btn-sm btn-outline-secondary">Invoice</a>
+<!--                    <a href="{# url 'mysite:download_invoice' order.id #}"-->
+<!--                       class="btn btn-sm btn-outline-secondary">Invoice</a>-->
+                  </div>
+                </li> -->
